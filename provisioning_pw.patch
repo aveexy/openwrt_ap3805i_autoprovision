@@ -1,0 +1,8 @@
+--- package/base-files/files/etc/shadow 2022-10-02 09:26:06.289653976 +0200
++++ package/base-files/files/etc/shadow 2022-10-02 09:20:03.235000000 +0200
+@@ -1,4 +1,4 @@
+-root:::0:99999:7:::
++root:$6$wT3UVVTs4Q5y/0GE$uQxVZ6iZGKEskzPFQYTwKbIERIXefqc0NCeeVpgThPjEWkyiiFMOhsMPQtM1EDRY3x8E9l3lzK1MNKz8DLh8w/::0:99999:7:::
+ daemon:*:0:0:99999:7:::
+ ftp:*:0:0:99999:7:::
+ network:*:0:0:99999:7:::
