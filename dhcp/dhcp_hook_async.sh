@@ -22,10 +22,10 @@ ssh_host_openwrt() {
 }
 
 scp_file() {
-  sshpass -p "$1" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $3 $4 "$2"@$IP:/"$5" "$6" &>/dev/null
+  sshpass -p "$1" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $3 "$4" "$2"@$IP:/"$5" &>/dev/null
 
   if [ $? -ne 0 ]; then
-    E "failed to transfer file" $3
+    E "failed to upload file" $3
 
     exit 1
   fi
@@ -36,7 +36,13 @@ scp_file_exnet() {
 }
 
 scp_file_exnet_dl() {
-  scp_file "new2day" admin "" "" "$1" "$2"
+  sshpass -p "new2day" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no admin@$IP:/"$1" "$2" &>/dev/null
+
+    if [ $? -ne 0 ]; then
+      E "failed to download file" $3
+
+      exit 1
+    fi
 }
 
 scp_file_openwrt() {
