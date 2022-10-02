@@ -24,8 +24,8 @@ ssh_host_openwrt() {
 scp_file() {
   sshpass -p "$1" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $3 $4 "$2"@$IP:/"$5" "$6" &>/dev/null
 
-    if [ $? -ne 0 ]; then
-      E "failed to upload file" $3
+  if [ $? -ne 0 ]; then
+    E "failed to transfer file" $3
 
     exit 1
   fi
@@ -33,6 +33,10 @@ scp_file() {
 
 scp_file_exnet() {
   scp_file "new2day" admin "" "$1" "$2"
+}
+
+scp_file_exnet_dl() {
+  scp_file "new2day" admin "" "" "$1" "$2"
 }
 
 scp_file_openwrt() {
@@ -52,6 +56,16 @@ sleep 1
 
 ssh_host_exnet
 if [ $? -eq 0 ]; then
+  E EXTREME NETWORKS AP: creating mtd dump
+
+  ssh_host_exnet "sh -c 'i=0; while [ \$i -ne 11 ]; do dd if=/dev/mtd\$i of=/tmp/tftp/mtd\$i.bin; i=\$((\$i+1)); done'"
+
+  mkdir -p "../mtd/$MAC"
+
+  E EXTREME NETWORKS AP: downloading mtd dump
+
+  scp_file_exnet_dl "*" "../mtd/$MAC/"
+
   E EXTREME NETWORKS AP: configuring bootloader
 
   scp_file_exnet ld-musl-mips-sf.so.1
@@ -85,11 +99,11 @@ if [ $? -eq 0 ]; then
   ssh_host_openwrt "fw_setenv ramboot_openwrt 'setenv serverip 192.168.1.66; tftpboot; bootm'"
   ssh_host_openwrt "fw_setenv bootcmd 'run boot_openwrt'"
 
-  E executing sysupgrade
+  E OPENWRT BOOTP AP: executing sysupgrade
 
   ssh_host_openwrt "sysupgrade -n /tmp/sysupgrade.bin"
 
-  E rebooting
+  E OPENWRT BOOTP AP: rebooting
 
   exit 0
 fi
