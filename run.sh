@@ -4,7 +4,6 @@ cd dhcp
 
 export IFNAME=enp0s13f0u4
 export USER=$SUDO_USER
-echo $USER
 
 ip addr replace 10.69.69.254/24 dev $IFNAME
 ip link set dev $IFNAME up

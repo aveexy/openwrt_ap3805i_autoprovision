@@ -11,6 +11,6 @@ cp ../.config .
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-make -j20 download
+make -j$(nproc) download
 
 make oldconfig

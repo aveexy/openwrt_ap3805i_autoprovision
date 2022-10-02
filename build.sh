@@ -2,7 +2,7 @@
 
 cd openwrt
 
-make -j20
+make -j$(nproc)
 
 mkdir ../built_deps
 
@@ -14,7 +14,7 @@ cp build_dir/target-mips_24kc_musl/root-ath79/usr/sbin/fw_setenv ../built_deps/
 
 patch -p0 < ../provisioning_pw.patch
 
-make -j20
+make -j$(nproc)
 
 cp bin/targets/ath79/generic/openwrt-ath79-generic-extreme-networks_ws-ap3805i-initramfs-kernel.bin ../built_deps/bootp-image.bin
 
