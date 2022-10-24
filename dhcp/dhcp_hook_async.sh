@@ -55,7 +55,7 @@ scp_file_openwrt() {
 
 E AP connected
 
-timeout 5 /bin/sh -c -- "while ! timeout 0.5 ping -c 1 -n $IP &>/dev/null; do :; done"
+timeout 5 /bin/sh -c -- "while ! ping -c 1 -W 1 $IP > /dev/null 2>&1; do sleep 1; done"
 if [ $? -ne 0 ]; then
   E "timeout, aborting"
 
