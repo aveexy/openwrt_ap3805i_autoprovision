@@ -9,8 +9,12 @@ E() {
   echo $(tput bold)\# $IP $@$(tput sgr0)
 }
 
+SSH_OPTS="-o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        -o HostKeyAlgorithms=+ssh-rsa"
+
 ssh_host() {
-  sshpass -p "$1" ssh -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $2@$IP "$3" &>/dev/null
+  sshpass -p "$1" ssh $SSH_OPTS $2@$IP "$3" &>/dev/null
 }
 
 ssh_host_exnet() {
@@ -22,7 +26,7 @@ ssh_host_openwrt() {
 }
 
 scp_file() {
-  sshpass -p "$1" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $3 "$4" "$2"@$IP:/"$5" &>/dev/null
+  sshpass -p "$1" scp $SSH_OPTS $3 "$4" "$2"@$IP:/"$5" &>/dev/null
 
   if [ $? -ne 0 ]; then
     E "failed to upload file" $3
@@ -36,7 +40,7 @@ scp_file_exnet() {
 }
 
 scp_file_exnet_dl() {
-  sshpass -p "new2day" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no admin@$IP:/"$1" "$2" &>/dev/null
+  sshpass -p "new2day" scp $SSH_OPTS admin@$IP:/"$1" "$2" &>/dev/null
 
     if [ $? -ne 0 ]; then
       E "failed to download file" $3
@@ -51,7 +55,7 @@ scp_file_openwrt() {
 
 E AP connected
 
-timeout 5 /bin/sh -c -- "while ! timeout 0.5 ping -c 1 -n $IP &>/dev/null; do :; done"
+timeout 5 /bin/sh -c -- "while ! ping -c 1 -W 1 $IP > /dev/null 2>&1; do sleep 1; done"
 if [ $? -ne 0 ]; then
   E "timeout, aborting"
 
