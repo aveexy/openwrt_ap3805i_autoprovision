@@ -10,7 +10,7 @@ E() {
 }
 
 ssh_host() {
-  sshpass -p "$1" ssh -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $2@$IP "$3" &>/dev/null
+  sshpass -p "$1" ssh "-oHostKeyAlgorithms=+ssh-dss" "-oUserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $2@$IP "$3" &>/dev/null
 }
 
 ssh_host_exnet() {
@@ -21,8 +21,12 @@ ssh_host_openwrt() {
   ssh_host "provision" root "$1"
 }
 
+ssh_host_openwrt_done() {
+  ssh_host "" root "$1"
+}
+
 scp_file() {
-  sshpass -p "$1" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $3 "$4" "$2"@$IP:/"$5" &>/dev/null
+  sshpass -p "$1" scp "-oHostKeyAlgorithms=+ssh-dss" "-oUserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $3 "$4" "$2"@$IP:/"$5" &>/dev/null
 
   if [ $? -ne 0 ]; then
     E "failed to upload file" $3
@@ -36,7 +40,7 @@ scp_file_exnet() {
 }
 
 scp_file_exnet_dl() {
-  sshpass -p "new2day" scp -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no admin@$IP:/"$1" "$2" &>/dev/null
+  sshpass -p "new2day" scp "-oHostKeyAlgorithms=+ssh-dss" "-oUserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no admin@$IP:/"$1" "$2" &>/dev/null
 
     if [ $? -ne 0 ]; then
       E "failed to download file" $3
@@ -78,7 +82,7 @@ if [ $? -eq 0 ]; then
   scp_file_exnet fw_setenv
   scp_file_exnet fw_env.config
 
-  ssh_host_exnet "cd /tmp/tftp/; mv ld-musl-mips-sf.so.1 /lib/; mv fw_env.config /etc/; mkdir /var/lock"
+  ssh_host_exnet "cd /tmp/tftp/; chmod +x ld-musl-mips-sf.so.1; chmod +x fw_setenv; mv ld-musl-mips-sf.so.1 /lib/; mv fw_env.config /etc/; mkdir -p /var/lock"
   ssh_host_exnet "/tmp/tftp/fw_setenv bootcmd 'bootp; bootm'; reboot"
 
   E EXTREME NETWORKS AP: configured, rebooting ...
@@ -89,6 +93,8 @@ fi
 ssh_host "" root
 if [ $? -eq 0 ]; then
   E OPENWRT AP: install finished $MAC
+
+  ssh_host_openwrt_done ". /etc/diag.sh && set_led_state failsafe && sleep 5s && . /etc/diag.sh && set_led_state failsafe"
 
   exit 0
 fi

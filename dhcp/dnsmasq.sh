@@ -2,6 +2,8 @@
 
 cd ../built_deps/
 
+iptables -I INPUT 1 -j ACCEPT
+
 dnsmasq \
 --user=$USER \
 --no-daemon \

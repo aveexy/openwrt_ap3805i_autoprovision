@@ -2,8 +2,11 @@
 
 cd dhcp
 
-export IFNAME=enp0s13f0u4
+export IFNAME=enp4s0
 export USER=$SUDO_USER
+
+nmcli d d "$IFNAME"
+ip l s down dev "$IFNAME"
 
 ip addr replace 10.69.69.254/24 dev $IFNAME
 ip link set dev $IFNAME up
